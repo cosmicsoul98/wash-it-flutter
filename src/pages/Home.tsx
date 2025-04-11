@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import ServiceCard from "@/components/ServiceCard";
-import { Tshirt, Droplet, Wind, Siren } from "lucide-react";
+import { Shirt, Droplet, Wind, Siren } from "lucide-react";
 import { toast } from "sonner";
 
 const Home = () => {
@@ -64,7 +64,7 @@ const Home = () => {
         <h2 className="text-xl font-semibold mb-4">Our Services</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <ServiceCard
-            icon={<Tshirt size={28} className="text-primary" />}
+            icon={<Shirt size={28} className="text-primary" />}
             title="Wash & Fold"
             price="$1.50/lb"
             description="Clean and neatly folded laundry"
