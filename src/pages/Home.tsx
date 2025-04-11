@@ -5,13 +5,54 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import ServiceCard from "@/components/ServiceCard";
-import { Shirt, Droplet, Wind, Siren, MapPin } from "lucide-react";
+import NearbyLaundry from "@/components/NearbyLaundry";
+import MiniOrderTracker from "@/components/MiniOrderTracker";
+import { Shirt, Droplet, Wind, Siren, MapPin, Search } from "lucide-react";
 import { toast } from "sonner";
 
 const Home = () => {
   const navigate = useNavigate();
   const [location, setLocation] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
+  
+  // Simulated data - in a real app this would come from an API
+  const nearbyLaundries = [
+    {
+      id: "LD1",
+      name: "Clean Express",
+      rating: 4.8,
+      distance: "0.8 miles",
+      address: "123 Main St, Anytown, USA",
+      openUntil: "9 PM",
+      services: ["Wash & Fold", "Dry Cleaning"]
+    },
+    {
+      id: "LD2",
+      name: "Fresh & Clean",
+      rating: 4.5,
+      distance: "1.2 miles",
+      address: "456 Oak Ave, Anytown, USA",
+      openUntil: "8 PM",
+      services: ["Wash & Fold", "Express", "Premium"]
+    },
+    {
+      id: "LD3",
+      name: "Sparkle Laundry",
+      rating: 4.7,
+      distance: "1.5 miles",
+      address: "789 Pine St, Anytown, USA",
+      openUntil: "10 PM",
+      services: ["Wash & Fold", "Dry Cleaning", "Premium"]
+    }
+  ];
+  
+  // Simulated active order - this would come from a state management solution in a real app
+  const [hasActiveOrder] = useState(true);
+  const activeOrder = {
+    orderId: "ORD5678",
+    status: "processing" as const,
+    estimatedTime: "5:30 PM Today"
+  };
 
   useEffect(() => {
     setIsLoaded(true);
@@ -74,6 +115,16 @@ const Home = () => {
           </CardContent>
         </Card>
       </div>
+      
+      {/* Order tracking section */}
+      <div className="mb-8">
+        <MiniOrderTracker 
+          hasActiveOrder={hasActiveOrder}
+          orderId={activeOrder.orderId}
+          status={activeOrder.status}
+          estimatedTime={activeOrder.estimatedTime}
+        />
+      </div>
 
       <div className="mb-10">
         <h2 className="text-2xl font-semibold mb-6 text-center md:text-left">Our Services</h2>
@@ -106,6 +157,35 @@ const Home = () => {
             description="Premium care for delicate items"
             onClick={() => handleServiceSelect('Premium')}
           />
+        </div>
+      </div>
+      
+      {/* Nearby laundries section */}
+      <div className="mb-10">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-semibold">Nearby Laundries</h2>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              type="text"
+              placeholder="Search laundries"
+              className="pl-10 w-[200px]"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {nearbyLaundries.map((laundry) => (
+            <NearbyLaundry
+              key={laundry.id}
+              id={laundry.id}
+              name={laundry.name}
+              rating={laundry.rating}
+              distance={laundry.distance}
+              address={laundry.address}
+              openUntil={laundry.openUntil}
+              services={laundry.services}
+            />
+          ))}
         </div>
       </div>
 
