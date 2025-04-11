@@ -1,15 +1,21 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import ServiceCard from "@/components/ServiceCard";
-import { Shirt, Droplet, Wind, Siren } from "lucide-react";
+import { Shirt, Droplet, Wind, Siren, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 const Home = () => {
   const navigate = useNavigate();
   const [location, setLocation] = useState('');
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
 
   const handleServiceSelect = (service: string) => {
     if (!location) {
@@ -21,6 +27,7 @@ const Home = () => {
 
   const handleGetLocation = () => {
     if (navigator.geolocation) {
+      toast.info("Detecting your location...");
       navigator.geolocation.getCurrentPosition(
         () => {
           setLocation('Current Location');
@@ -36,23 +43,31 @@ const Home = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 pt-16 pb-24 md:pb-4">
+    <div className={`container mx-auto px-4 pt-20 pb-24 md:pb-4 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-bold mb-2 text-primary">Wash-It</h1>
-        <p className="text-gray-600 mb-6">Premium Laundry Services</p>
+        <div className="flex justify-center mb-2">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center bubble-animation">
+            <Shirt size={32} className="text-white" />
+          </div>
+        </div>
+        <h1 className="text-4xl font-bold mb-2 text-primary">Wash-It</h1>
+        <p className="text-gray-600 mb-8">Premium Laundry Services at Your Doorstep</p>
         
-        <Card className="mb-8 bg-gradient-to-r from-primary/10 to-secondary/10 border-none">
+        <Card className="mb-10 bg-gradient-to-r from-primary/10 to-secondary/10 border-none shadow-md hover:shadow-lg transition-shadow">
           <CardContent className="p-6">
-            <h2 className="text-xl font-semibold mb-3">Your Location</h2>
+            <h2 className="text-xl font-semibold mb-4">Your Location</h2>
             <div className="flex gap-2">
-              <input
-                type="text"
-                placeholder="Enter your address"
-                className="flex-1 rounded-md border border-input px-3 py-2 text-sm"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-              />
-              <Button variant="outline" onClick={handleGetLocation}>
+              <div className="relative flex-1">
+                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  type="text"
+                  placeholder="Enter your address"
+                  className="pl-10"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+              </div>
+              <Button onClick={handleGetLocation}>
                 Detect
               </Button>
             </div>
@@ -60,9 +75,9 @@ const Home = () => {
         </Card>
       </div>
 
-      <div className="mb-8">
-        <h2 className="text-xl font-semibold mb-4">Our Services</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="mb-10">
+        <h2 className="text-2xl font-semibold mb-6 text-center md:text-left">Our Services</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           <ServiceCard
             icon={<Shirt size={28} className="text-primary" />}
             title="Wash & Fold"
@@ -95,14 +110,17 @@ const Home = () => {
       </div>
 
       <div className="mb-8">
-        <Card className="bg-accent border-none">
-          <CardContent className="p-6">
-            <h2 className="text-lg font-semibold mb-2">First Order Discount!</h2>
-            <p className="text-sm text-gray-600 mb-4">
-              Get 15% off on your first order with code: FIRSTWASH
+        <Card className="bg-gradient-to-r from-accent to-accent/70 border-none shadow-md overflow-hidden relative">
+          <div className="absolute -right-10 -top-10 w-40 h-40 bg-secondary/20 rounded-full"></div>
+          <div className="absolute -left-10 -bottom-10 w-24 h-24 bg-primary/10 rounded-full"></div>
+          <CardContent className="p-8 relative z-10">
+            <h2 className="text-xl font-bold mb-2">First Order Discount!</h2>
+            <p className="text-sm text-gray-700 mb-6">
+              Get 15% off on your first order with code: <span className="font-bold text-primary">FIRSTWASH</span>
             </p>
-            <Button className="w-full" onClick={() => toast.info("Promo code FIRSTWASH will be applied automatically on your first order!")}>
-              Learn More
+            <Button className="w-full bg-primary hover:bg-primary/90 text-white" 
+              onClick={() => toast.info("Promo code FIRSTWASH will be applied automatically on your first order!")}>
+              Claim Offer
             </Button>
           </CardContent>
         </Card>
