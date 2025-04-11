@@ -9,6 +9,7 @@ import NearbyLaundry from "@/components/NearbyLaundry";
 import MiniOrderTracker from "@/components/MiniOrderTracker";
 import { Shirt, Droplet, Wind, Siren, MapPin, Search } from "lucide-react";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -83,41 +84,64 @@ const Home = () => {
     }
   };
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div className={`container mx-auto px-4 pt-20 pb-24 md:pb-4 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
-      <div className="text-center mb-8">
-        <div className="flex justify-center mb-2">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center bubble-animation">
-            <Shirt size={32} className="text-white" />
+    <div className={`container mx-auto px-4 pt-16 pb-24 md:pb-4 transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
+      <motion.div 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="text-center mb-8"
+      >
+        <div className="flex justify-center mb-3">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-r from-primary/80 to-secondary/80 flex items-center justify-center bubble-animation">
+            <Shirt size={36} className="text-white" />
           </div>
         </div>
-        <h1 className="text-4xl font-bold mb-2 text-primary">Wash-It</h1>
-        <p className="text-gray-600 mb-8">Premium Laundry Services at Your Doorstep</p>
+        <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Wash-It</h1>
+        <p className="text-gray-600 mb-8 max-w-md mx-auto">Premium Laundry Services at Your Doorstep</p>
         
-        <Card className="mb-10 bg-gradient-to-r from-primary/10 to-secondary/10 border-none shadow-md hover:shadow-lg transition-shadow">
+        <Card className="mb-10 bg-gradient-to-r from-primary/5 to-secondary/5 border-none shadow-sm hover:shadow-md transition-all">
           <CardContent className="p-6">
-            <h2 className="text-xl font-semibold mb-4">Your Location</h2>
+            <h2 className="text-xl font-semibold mb-4 text-primary/90">Your Location</h2>
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
                   type="text"
                   placeholder="Enter your address"
-                  className="pl-10"
+                  className="pl-10 border-gray-200 focus:border-primary/50"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                 />
               </div>
-              <Button onClick={handleGetLocation}>
+              <Button 
+                onClick={handleGetLocation}
+                className="bg-primary hover:bg-primary/90"
+              >
                 Detect
               </Button>
             </div>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
       
       {/* Order tracking section */}
-      <div className="mb-8">
+      <div className="mb-10">
         <MiniOrderTracker 
           hasActiveOrder={hasActiveOrder}
           orderId={activeOrder.orderId}
@@ -126,50 +150,68 @@ const Home = () => {
         />
       </div>
 
-      <div className="mb-10">
-        <h2 className="text-2xl font-semibold mb-6 text-center md:text-left">Our Services</h2>
+      <motion.div 
+        className="mb-10"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
+        <h2 className="text-2xl font-semibold mb-6 text-center md:text-left text-primary/90">Our Services</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          <ServiceCard
-            icon={<Shirt size={28} className="text-primary" />}
-            title="Wash & Fold"
-            price="$1.50/lb"
-            description="Clean and neatly folded laundry"
-            onClick={() => handleServiceSelect('Wash & Fold')}
-          />
-          <ServiceCard
-            icon={<Droplet size={28} className="text-primary" />}
-            title="Dry Cleaning"
-            price="$4.99/item"
-            description="Professional dry cleaning service"
-            onClick={() => handleServiceSelect('Dry Cleaning')}
-          />
-          <ServiceCard
-            icon={<Wind size={28} className="text-primary" />}
-            title="Express"
-            price="$2.50/lb"
-            description="Same day service (before 10 AM)"
-            onClick={() => handleServiceSelect('Express')}
-          />
-          <ServiceCard
-            icon={<Siren size={28} className="text-primary" />}
-            title="Premium"
-            price="$3.99/lb"
-            description="Premium care for delicate items"
-            onClick={() => handleServiceSelect('Premium')}
-          />
+          <motion.div variants={item}>
+            <ServiceCard
+              icon={<Shirt size={28} className="text-primary" />}
+              title="Wash & Fold"
+              price="$1.50/lb"
+              description="Clean and neatly folded laundry"
+              onClick={() => handleServiceSelect('Wash & Fold')}
+            />
+          </motion.div>
+          <motion.div variants={item}>
+            <ServiceCard
+              icon={<Droplet size={28} className="text-primary" />}
+              title="Dry Cleaning"
+              price="$4.99/item"
+              description="Professional dry cleaning service"
+              onClick={() => handleServiceSelect('Dry Cleaning')}
+            />
+          </motion.div>
+          <motion.div variants={item}>
+            <ServiceCard
+              icon={<Wind size={28} className="text-primary" />}
+              title="Express"
+              price="$2.50/lb"
+              description="Same day service (before 10 AM)"
+              onClick={() => handleServiceSelect('Express')}
+            />
+          </motion.div>
+          <motion.div variants={item}>
+            <ServiceCard
+              icon={<Siren size={28} className="text-primary" />}
+              title="Premium"
+              price="$3.99/lb"
+              description="Premium care for delicate items"
+              onClick={() => handleServiceSelect('Premium')}
+            />
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
       
       {/* Nearby laundries section */}
-      <div className="mb-10">
+      <motion.div 
+        className="mb-10"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3, duration: 0.6 }}
+      >
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-semibold">Nearby Laundries</h2>
+          <h2 className="text-2xl font-semibold text-primary/90">Nearby Laundries</h2>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               type="text"
               placeholder="Search laundries"
-              className="pl-10 w-[200px]"
+              className="pl-10 w-[200px] border-gray-200 focus:border-primary/50"
             />
           </div>
         </div>
@@ -187,24 +229,31 @@ const Home = () => {
             />
           ))}
         </div>
-      </div>
+      </motion.div>
 
-      <div className="mb-8">
-        <Card className="bg-gradient-to-r from-accent to-accent/70 border-none shadow-md overflow-hidden relative">
-          <div className="absolute -right-10 -top-10 w-40 h-40 bg-secondary/20 rounded-full"></div>
+      <motion.div 
+        className="mb-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4, duration: 0.6 }}
+      >
+        <Card className="bg-gradient-to-r from-accent/80 to-accent/50 border-none shadow-md overflow-hidden relative">
+          <div className="absolute -right-10 -top-10 w-40 h-40 bg-secondary/10 rounded-full"></div>
           <div className="absolute -left-10 -bottom-10 w-24 h-24 bg-primary/10 rounded-full"></div>
           <CardContent className="p-8 relative z-10">
-            <h2 className="text-xl font-bold mb-2">First Order Discount!</h2>
+            <h2 className="text-xl font-bold mb-2 text-primary">First Order Discount!</h2>
             <p className="text-sm text-gray-700 mb-6">
-              Get 15% off on your first order with code: <span className="font-bold text-primary">FIRSTWASH</span>
+              Get 15% off on your first order with code: <span className="font-bold text-primary px-2 py-1 bg-white/50 rounded-md">FIRSTWASH</span>
             </p>
-            <Button className="w-full bg-primary hover:bg-primary/90 text-white" 
-              onClick={() => toast.info("Promo code FIRSTWASH will be applied automatically on your first order!")}>
+            <Button 
+              className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity" 
+              onClick={() => toast.info("Promo code FIRSTWASH will be applied automatically on your first order!")}
+            >
               Claim Offer
             </Button>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
     </div>
   );
 };

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Truck, Package, Clock, ChevronRight } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
+import { motion } from "framer-motion";
 
 interface MiniOrderTrackerProps {
   hasActiveOrder: boolean;
@@ -60,49 +61,58 @@ const MiniOrderTracker: React.FC<MiniOrderTrackerProps> = ({
   };
   
   return (
-    <Card className="bg-gradient-to-r from-gray-50 to-white border-gray-100 hover:shadow-md transition-all overflow-hidden">
-      <CardContent className="p-4">
-        {hasActiveOrder ? (
-          <>
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="font-semibold">Your Order</h3>
-              <Badge variant="outline"># {orderId}</Badge>
-            </div>
-            
-            <div className="flex items-center gap-3 mb-3">
-              {getStatusIcon()}
-              <div className="flex-1">
-                <Badge className={`${getStatusColor()} mb-1`}>
-                  {getStatusText()}
-                </Badge>
-                <p className="text-xs text-muted-foreground">Est. arrival: {estimatedTime}</p>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Card className="bg-gradient-to-r from-white to-gray-50 border border-gray-100 shadow-sm hover:shadow-md transition-all">
+        <CardContent className="p-5">
+          {hasActiveOrder ? (
+            <>
+              <div className="flex justify-between items-center mb-3">
+                <h3 className="font-semibold text-primary">Your Active Order</h3>
+                <Badge variant="outline" className="font-mono">{orderId}</Badge>
               </div>
+              
+              <div className="flex items-center gap-4 mb-4">
+                {getStatusIcon()}
+                <div className="flex-1">
+                  <Badge className={`${getStatusColor()} font-medium mb-1.5`}>
+                    {getStatusText()}
+                  </Badge>
+                  <p className="text-xs text-muted-foreground">Est. arrival: {estimatedTime}</p>
+                </div>
+              </div>
+              
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full border-primary/20 hover:bg-primary/5" 
+                onClick={() => navigate('/orders')}
+              >
+                Track Order <ChevronRight className="h-3.5 w-3.5 ml-1" />
+              </Button>
+            </>
+          ) : (
+            <div className="flex flex-col items-center py-3">
+              <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
+                <Clock className="h-6 w-6 text-gray-400" />
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">No active orders at the moment</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full"
+                onClick={() => navigate('/')}
+              >
+                Place New Order
+              </Button>
             </div>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full" 
-              onClick={() => navigate('/orders')}
-            >
-              Track Order <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </>
-        ) : (
-          <div className="flex flex-col items-center py-2">
-            <p className="text-sm text-muted-foreground mb-3">No active orders at the moment</p>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="w-full"
-              onClick={() => navigate('/')}
-            >
-              Place New Order
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
