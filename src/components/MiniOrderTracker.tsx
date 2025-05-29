@@ -2,7 +2,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Truck, Package, Clock, ChevronRight } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Truck, Package, Clock, ChevronRight, CheckCircle } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { motion } from "framer-motion";
 
@@ -20,6 +21,53 @@ const MiniOrderTracker: React.FC<MiniOrderTrackerProps> = ({
   estimatedTime
 }) => {
   const navigate = useNavigate();
+  
+  const getProgressValue = () => {
+    switch (status) {
+      case 'pending':
+        return 25;
+      case 'processing':
+        return 50;
+      case 'delivery':
+        return 75;
+      case 'completed':
+        return 100;
+      default:
+        return 0;
+    }
+  };
+  
+  const getStatusSteps = () => {
+    const steps = [
+      { key: 'pending', label: 'Pickup', icon: Clock },
+      { key: 'processing', label: 'Processing', icon: Package },
+      { key: 'delivery', label: 'Delivery', icon: Truck },
+      { key: 'completed', label: 'Complete', icon: CheckCircle }
+    ];
+    
+    return steps.map((step, index) => {
+      const isCompleted = getProgressValue() > (index * 25);
+      const isCurrent = step.key === status;
+      const IconComponent = step.icon;
+      
+      return (
+        <div key={step.key} className="flex flex-col items-center">
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
+            isCompleted || isCurrent 
+              ? 'bg-primary border-primary text-white' 
+              : 'bg-gray-100 border-gray-300 text-gray-400'
+          }`}>
+            <IconComponent className="h-4 w-4" />
+          </div>
+          <span className={`text-xs mt-1 transition-colors ${
+            isCompleted || isCurrent ? 'text-primary font-medium' : 'text-gray-400'
+          }`}>
+            {step.label}
+          </span>
+        </div>
+      );
+    });
+  };
   
   const getStatusIcon = () => {
     switch (status) {
@@ -70,9 +118,23 @@ const MiniOrderTracker: React.FC<MiniOrderTrackerProps> = ({
         <CardContent className="p-5">
           {hasActiveOrder ? (
             <>
-              <div className="flex justify-between items-center mb-3">
+              <div className="flex justify-between items-center mb-4">
                 <h3 className="font-semibold text-primary">Your Active Order</h3>
                 <Badge variant="outline" className="font-mono">{orderId}</Badge>
+              </div>
+              
+              {/* Progress Bar */}
+              <div className="mb-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm font-medium text-gray-700">Order Progress</span>
+                  <span className="text-sm text-gray-500">{getProgressValue()}%</span>
+                </div>
+                <Progress value={getProgressValue()} className="h-2 mb-3" />
+                
+                {/* Progress Steps */}
+                <div className="flex justify-between">
+                  {getStatusSteps()}
+                </div>
               </div>
               
               <div className="flex items-center gap-4 mb-4">
