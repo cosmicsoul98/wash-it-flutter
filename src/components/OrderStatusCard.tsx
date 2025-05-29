@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -8,12 +7,14 @@ import {
   CheckCircle, 
   ShoppingBasket, 
   Loader,
-  Package 
+  Package,
+  Store 
 } from "lucide-react";
 
 interface OrderStatusCardProps {
   orderId: string;
   service: string;
+  laundryName?: string;
   date: string;
   time: string;
   status: 'pending' | 'processing' | 'delivery' | 'completed';
@@ -23,6 +24,7 @@ interface OrderStatusCardProps {
 const OrderStatusCard: React.FC<OrderStatusCardProps> = ({
   orderId,
   service,
+  laundryName,
   date,
   time,
   status,
@@ -121,6 +123,12 @@ const OrderStatusCard: React.FC<OrderStatusCardProps> = ({
               <h3 className="font-semibold">{service}</h3>
               <Badge variant="outline" className="text-xs">#{orderId.slice(-4)}</Badge>
             </div>
+            {laundryName && (
+              <div className="flex items-center text-sm text-muted-foreground mb-1">
+                <Store className="h-3 w-3 mr-1" />
+                <span>{laundryName}</span>
+              </div>
+            )}
             <p className="text-sm text-muted-foreground mb-2">{date} • {time}</p>
             {items > 0 && (
               <div className="flex items-center text-xs text-muted-foreground">

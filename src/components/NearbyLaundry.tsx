@@ -6,6 +6,11 @@ import { Star, MapPin, Clock } from "lucide-react";
 import { useNavigate } from 'react-router-dom';
 import { motion } from "framer-motion";
 
+interface LaundryService {
+  name: string;
+  price: string;
+}
+
 interface NearbyLaundryProps {
   id: string;
   name: string;
@@ -13,7 +18,7 @@ interface NearbyLaundryProps {
   distance: string;
   address: string;
   openUntil: string;
-  services: string[];
+  services: LaundryService[];
 }
 
 const NearbyLaundry: React.FC<NearbyLaundryProps> = ({
@@ -28,7 +33,13 @@ const NearbyLaundry: React.FC<NearbyLaundryProps> = ({
   const navigate = useNavigate();
   
   const handleOrderClick = () => {
-    navigate('/order', { state: { laundryId: id, laundryName: name } });
+    navigate('/order', { 
+      state: { 
+        laundryId: id, 
+        laundryName: name,
+        laundryServices: services 
+      } 
+    });
   };
   
   return (
@@ -55,12 +66,21 @@ const NearbyLaundry: React.FC<NearbyLaundryProps> = ({
           
           <p className="text-xs text-gray-500 mb-3 truncate">{address}</p>
           
-          <div className="flex flex-wrap gap-1 mb-3">
-            {services.map((service, index) => (
-              <Badge key={index} variant="outline" className="text-xs bg-accent/50 text-primary/80 border-none">
-                {service}
-              </Badge>
-            ))}
+          <div className="mb-4">
+            <h4 className="text-xs font-semibold text-gray-700 mb-2">Services offered:</h4>
+            <div className="space-y-1">
+              {services.slice(0, 3).map((service, index) => (
+                <div key={index} className="flex justify-between items-center text-xs">
+                  <span className="text-gray-600">{service.name}</span>
+                  <Badge variant="outline" className="text-xs bg-accent/50 text-primary/80 border-none">
+                    {service.price}
+                  </Badge>
+                </div>
+              ))}
+              {services.length > 3 && (
+                <span className="text-xs text-muted-foreground">+{services.length - 3} more services</span>
+              )}
+            </div>
           </div>
           
           <Button 
@@ -68,7 +88,7 @@ const NearbyLaundry: React.FC<NearbyLaundryProps> = ({
             className="w-full bg-gradient-to-r from-primary to-secondary hover:opacity-90 transition-opacity"
             onClick={handleOrderClick}
           >
-            Order Now
+            Order from {name}
           </Button>
         </CardContent>
       </Card>

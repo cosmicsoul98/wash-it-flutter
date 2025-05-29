@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { 
@@ -28,14 +27,21 @@ import {
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { format, addDays } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+interface LaundryService {
+  name: string;
+  price: string;
+}
 
 interface OrderForm {
   address: string;
+  service: string;
   items: number;
   notes: string;
   pickupDate: Date;
@@ -47,16 +53,25 @@ interface OrderForm {
 const Order = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { service, location: userLocation } = location.state || { 
-    service: 'Wash & Fold', 
-    location: '' 
+  const { 
+    laundryId, 
+    laundryName, 
+    laundryServices = [] 
+  } = location.state || { 
+    laundryId: 'LD1', 
+    laundryName: 'Clean Express',
+    laundryServices: [
+      { name: 'Wash & Fold', price: '$1.50/lb' },
+      { name: 'Dry Cleaning', price: '$4.99/item' }
+    ]
   };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<OrderForm>({
     defaultValues: {
-      address: userLocation || '',
+      address: '',
+      service: '',
       items: 1,
       notes: '',
       pickupDate: new Date(),
@@ -65,32 +80,31 @@ const Order = () => {
       deliveryTime: '14:00',
     },
   });
+
+  const selectedService = laundryServices.find(s => s.name === form.watch('service'));
   
   const getTotalPrice = () => {
+    if (!selectedService) return '0.00';
+    
     const items = form.watch('items');
-    let basePrice = 0;
+    const priceText = selectedService.price;
     
-    switch (service) {
-      case 'Wash & Fold':
-        basePrice = 1.5 * items;
-        break;
-      case 'Dry Cleaning':
-        basePrice = 4.99 * items;
-        break;
-      case 'Express':
-        basePrice = 2.5 * items;
-        break;
-      case 'Premium':
-        basePrice = 3.99 * items;
-        break;
-      default:
-        basePrice = 1.5 * items;
-    }
+    // Extract numeric value from price string (e.g., "$1.50/lb" -> 1.50)
+    const priceMatch = priceText.match(/\$([0-9.]+)/);
+    if (!priceMatch) return '0.00';
     
-    return basePrice.toFixed(2);
+    const price = parseFloat(priceMatch[1]);
+    const total = price * items;
+    
+    return total.toFixed(2);
   };
 
   const handleSubmit = (data: OrderForm) => {
+    if (!data.service) {
+      toast.error("Please select a service");
+      return;
+    }
+    
     setIsSubmitting(true);
     
     // Simulate API call
@@ -106,7 +120,8 @@ const Order = () => {
         state: { 
           newOrder: {
             id: orderId,
-            service,
+            service: data.service,
+            laundryName,
             status: 'pending',
             pickupDate: format(data.pickupDate, 'MMM dd, yyyy'),
             pickupTime: data.pickupTime,
@@ -125,15 +140,48 @@ const Order = () => {
         <form onSubmit={form.handleSubmit(handleSubmit)}>
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Service Details</CardTitle>
+              <CardTitle>Laundry Provider</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-medium">Selected Service</h3>
-                <div className="bg-accent rounded-full px-4 py-1.5 text-sm font-medium">
-                  {service}
+              <div className="flex justify-between items-center p-4 bg-accent/30 rounded-lg">
+                <div>
+                  <h3 className="font-semibold">{laundryName}</h3>
+                  <div className="flex items-center text-sm text-muted-foreground">
+                    <Star className="h-4 w-4 text-yellow-500 fill-yellow-500 mr-1" />
+                    <span>4.8 • Open until 9 PM</span>
+                  </div>
                 </div>
+                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  Selected
+                </Badge>
               </div>
+              
+              <FormField
+                control={form.control}
+                name="service"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Select Service</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Choose a service" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {laundryServices.map((service, index) => (
+                          <SelectItem key={index} value={service.name}>
+                            <div className="flex justify-between items-center w-full">
+                              <span>{service.name}</span>
+                              <span className="ml-4 text-muted-foreground">{service.price}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
               
               <FormField
                 control={form.control}
@@ -153,7 +201,9 @@ const Order = () => {
                 name="items"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Number of Items</FormLabel>
+                    <FormLabel>
+                      {selectedService?.price.includes('/lb') ? 'Estimated Weight (lbs)' : 'Number of Items'}
+                    </FormLabel>
                     <FormControl>
                       <Input 
                         type="number" 
@@ -358,12 +408,22 @@ const Order = () => {
             <CardContent>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Service</span>
-                  <span>{service}</span>
+                  <span className="text-muted-foreground">Laundry</span>
+                  <span>{laundryName}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Items</span>
-                  <span>{form.watch('items')}</span>
+                  <span className="text-muted-foreground">Service</span>
+                  <span>{form.watch('service') || 'Not selected'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">
+                    {selectedService?.price.includes('/lb') ? 'Weight' : 'Items'}
+                  </span>
+                  <span>{form.watch('items')} {selectedService?.price.includes('/lb') ? 'lbs' : 'items'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Unit Price</span>
+                  <span>{selectedService?.price || 'N/A'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Pickup</span>
